@@ -1,0 +1,41 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+strategy:
+  matrix:
+    Python36:
+      python.version: '3.6'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(python.version)'
+  displayName: 'Use Python $(python.version)'
+
+- script: |
+    sudo python -m pip install --upgrade pip
+    sudo pip install -r requirements.txt
+  displayName: 'Install dependencies'
+- script: |
+    sudo apt-get install chromium-chromedriver
+    sudo apt-get update
+    sudo apt-get upgrade -y
+    sudo apt-get install python3-pip unzip expect -y
+    sudo apt-get install -y chromium-browser
+    pip3 install selenium
+    sudo rm -rf chromedriver*
+    wget https://chromedriver.storage.googleapis.com/90.0.4430.24/chromedriver_linux64.zip
+    unzip chromedriver*.zip
+    sudo mv chromedriver -f /usr/bin
+    sudo apt-get install unzip -y
+    sudo python main.py
+    
+    
+  displayName: 'Running selenium scripts'
